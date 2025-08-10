@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Roblox Login Clone</title>
+  <style>
+    body { font-family: Arial; background-color: #e3e3e3; text-align: center; }
+    .login-box {
+      background: white; padding: 20px; margin: 100px auto;
+      width: 300px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    input { width: 90%; padding: 8px; margin: 8px 0; }
+    button { background: #00A2FF; color: white; padding: 10px; border: none; width: 100%; }
+    img { border-radius: 50%; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Log In</h2>
+    <input type="text" id="username" placeholder="Username">
+    <button onclick="login()">Log In</button>
+    <div id="profile"></div>
+  </div>
+
+  <script>
+    async function login() {
+      const username = document.getElementById('username').value.trim();
+      if (!username) return alert("Please enter a username");
+
+      try {
+        // 1. Get Roblox UserId from username
+        const res = await fetch(`https://api.roblox.com/users/get-by-username?username=${username}`);
+        const data = await res.json();
+        if (!data.Id) return alert("User not found");
+
+        // 2. Get avatar
+        const avatarRes = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${data.Id}&size=150x150&format=Png`);
+        const avatarData = await avatarRes.json();
+        const avatarUrl = avatarData.data[0].imageUrl;
+
+        document.getElementById("profile").innerHTML = `
+          <h3>${data.Username}</h3>
+          <img src="${avatarUrl}" alt="Avatar">
+        `;
+      } catch (err) {
+        console.error(err);
+        alert("Error loading profile");
+      }
+    }
+  </script>
+</body>
+</html>
